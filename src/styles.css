@@ -1,0 +1,96 @@
+/* Editor Container */
+.micropen-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Toolbar */
+.micropen-toolbar {
+  display: flex;
+  padding: 8px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+
+/* Toolbar Buttons */
+.micropen-button {
+  padding: 8px;
+  min-width: 2.5rem;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.micropen-button:hover {
+  background: #f5f5f5;
+}
+
+.micropen-button.active {
+  background: #e0e0e0;
+  border-color: #ccc;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.micropen-button svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* Editor Area */
+.micropen-editor {
+  min-height: 150px;
+  padding: 16px;
+  outline: none;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.micropen-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #999;
+  pointer-events: none;
+}
+
+.micropen-editor:focus {
+  outline: none;
+}
+
+.micropen-editor[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Formatted content styles */
+.micropen-editor strong { font-weight: bold; }
+.micropen-editor em { font-style: italic; }
+.micropen-editor u { text-decoration: underline; }
+.micropen-editor a { color: #0066cc; text-decoration: underline; }
+.micropen-editor h2 { font-size: 1.5em; margin: 1em 0; }
+.micropen-editor ul { margin: 1em 0; padding-left: 2em; }
+.micropen-editor li { list-style: disc; }
+.micropen-editor img { max-width: 100%; height: auto; }
+.micropen-editor pre {
+  background: #f5f5f5;
+  padding: 1em;
+  border-radius: 4px;
+  overflow-x: auto;
+}

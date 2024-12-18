@@ -1,3 +1,4 @@
+import './styles.css';
 import type { EditorOptions, GeneratedFeature } from './types';
 import { StateManager } from './core/state';
 import { FeatureGenerator } from './core/generator';
@@ -17,13 +18,25 @@ export class Editor {
       throw new Error('Editor can only be initialized in browser environment');
     }
 
-    const element = browserAPIs.getElement(options.element.id);
-    if (!element) {
-      throw new Error('Editor element not found');
+    if (!options.element) {
+      throw new Error('Editor element is required');
     }
 
-    this.#element = element;
+    if (!(options.element instanceof HTMLElement)) {
+      throw new Error('Editor element must be a valid HTMLElement');
+    }
+
+    this.#element = options.element;
     this.#onChange = options.onChange;
+
+    if (options.placeholder) {
+      this.#element.setAttribute('data-placeholder', options.placeholder);
+    }
+    
+    if (options.initialContent) {
+      this.setContent(options.initialContent);
+    }
+
     this.#features = new Map();
     this.#activeFeatures = new Set();
 
@@ -31,10 +44,13 @@ export class Editor {
     this.#state = new StateManager({ content: this.#element.innerHTML });
     this.#generator = new FeatureGenerator();
 
+    // Make element editable
+    this.#element.contentEditable = 'true';
+    this.#element.spellcheck = false;
+
     // Setup base editor
     this.#initializeEditor();
 
-    // Enable initial features
     if (options.features) {
       options.features.forEach(feature => this.enable(feature));
     }
@@ -56,8 +72,6 @@ export class Editor {
         payload: feature,
         timestamp: Date.now()
       });
-
-      // Log updated bundle size
     } catch (error) {
       throw error;
     }
@@ -67,7 +81,6 @@ export class Editor {
     if (!isBrowser()) return;
 
     const featureInstance = this.#features.get(feature);
-
     if (!featureInstance) {
       throw new Error(`Feature ${feature} not found`);
     }
@@ -79,7 +92,7 @@ export class Editor {
       // Notify change
       this.#handleInput();
     } catch (error) {
-      throw error;
+      console.error(`Error executing feature ${feature}:`, error);
     }
   }
 
@@ -131,16 +144,12 @@ export class Editor {
   #initializeEditor(): void {
     if (!isBrowser()) return;
 
-    // Make element editable
-    this.#element.contentEditable = 'true';
-    this.#element.spellcheck = false;
-
     // Setup basic handlers
-    this.#element.addEventListener('input', this.#handleInput.bind(this));
-    document.addEventListener('selectionchange', this.#handleSelection.bind(this));
+    this.#element.addEventListener('input', this.#handleInput);
+    document.addEventListener('selectionchange', this.#handleSelection);
 
     // Prevent default behaviors we don't want
-    this.#element.addEventListener('paste', this.#handlePaste.bind(this));
+    this.#element.addEventListener('paste', this.#handlePaste);
   }
 
   #handleInput = (): void => {
@@ -178,21 +187,42 @@ export class Editor {
     browserAPIs.execCommand('insertText', false, text);
   };
 
+  #getCommand(feature: string): string {
+    switch (feature) {
+      case 'bold': return 'bold';
+      case 'italic': return 'italic';
+      case 'underline': return 'underline';
+      case 'link': return 'createLink';
+      case 'heading': return 'formatBlock';
+      case 'list': return 'insertUnorderedList';
+      case 'code': return 'formatBlock';
+      default: return feature;
+    }
+  }
+
   destroy(): void {
     if (!isBrowser()) return;
-
-    // Cleanup all features
-    Array.from(this.#features.keys()).forEach(feature => {
-      this.disable(feature);
-    });
 
     // Remove event listeners
     this.#element.removeEventListener('input', this.#handleInput);
     document.removeEventListener('selectionchange', this.#handleSelection);
     this.#element.removeEventListener('paste', this.#handlePaste);
 
-    // Reset element
-    this.#element.contentEditable = 'false';
+    // Clean up features
+    for (const [name] of this.#features) {
+      this.disable(name);
+    }
+
+    // Reset state
+    this.#state.update({
+      type: 'SET_CONTENT',
+      payload: '',
+      timestamp: Date.now()
+    });
+
+    // Clear features and active features
+    this.#features.clear();
+    this.#activeFeatures.clear();
   }
 
   getBundleSize(): number {
@@ -201,17 +231,5 @@ export class Editor {
 
   toString(): string {
     return `Editor(size=${this.getBundleSize()}B, features=[${Array.from(this.#features.keys()).join(', ')}])`;
-  }
-
-  #getCommand(featureName: string): string {
-    switch (featureName) {
-      case 'bold': return 'bold';
-      case 'italic': return 'italic';
-      case 'underline': return 'underline';
-      case 'link': return 'createLink';
-      case 'heading': return 'formatBlock';
-      case 'list': return 'insertUnorderedList';
-      default: return '';
-    }
   }
 }

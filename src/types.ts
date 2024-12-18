@@ -1,7 +1,9 @@
-export type EditorOptions = {
+export interface EditorOptions {
   element: HTMLElement;
-  features?: string[];
   onChange?: (html: string) => void;
+  placeholder?: string;
+  features?: string[];
+  initialContent?: string;
 };
 
 export type FeatureBlueprint = {

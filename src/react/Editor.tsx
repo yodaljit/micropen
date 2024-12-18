@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Editor as BaseEditor } from '../editor';
-import type { EditorOptions } from '../types';
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { Editor as MicropenEditor } from '../editor';
+import { Toolbar } from '../components/Toolbar';
+import type { IconType } from '../components/vue-icons';
 
 export interface EditorProps {
   value?: string;
-  placeholder?: string;
   onChange?: (value: string) => void;
-  className?: string;
-  style?: React.CSSProperties;
+  placeholder?: string;
+  features?: IconType[];
 }
 
 export interface EditorRef {
@@ -16,80 +16,101 @@ export interface EditorRef {
   focus: () => void;
 }
 
-const defaultStyles: React.CSSProperties = {
-  border: '1px solid #ddd',
-  borderRadius: '4px',
-  padding: '1rem',
-  minHeight: '200px',
-  outline: 'none',
-};
+const defaultFeatures: IconType[] = [
+  'bold',
+  'italic',
+  'underline',
+  'link',
+  'heading',
+  'list',
+  'code'
+];
 
 export const Editor = forwardRef<EditorRef, EditorProps>(({
-  value,
-  placeholder,
+  value = '',
   onChange,
-  className,
-  style
+  placeholder = '',
+  features = defaultFeatures
 }, ref) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<BaseEditor | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const editorInstance = useRef<MicropenEditor | null>(null);
+  const [activeFeatures, setActiveFeatures] = useState<Set<string>>(new Set());
+
+  const updateActiveFeatures = () => {
+    if (!editorInstance.current) return;
+    
+    const newActiveFeatures = new Set<string>();
+    features.forEach(feature => {
+      if (editorInstance.current?.isActive(feature)) {
+        newActiveFeatures.add(feature);
+      }
+    });
+    setActiveFeatures(newActiveFeatures);
+  };
+
+  const handleFeatureClick = (feature: string) => {
+    if (!editorInstance.current) return;
+    editorInstance.current.execute(feature);
+    updateActiveFeatures();
+  };
+
+  useImperativeHandle(ref, () => ({
+    getContent: () => editorInstance.current?.getContent() || '',
+    setContent: (html: string) => {
+      editorInstance.current?.setContent(html);
+      updateActiveFeatures();
+    },
+    focus: () => editorRef.current?.focus()
+  }));
 
   useEffect(() => {
-    if (!containerRef.current || editorRef.current) return;
+    if (!editorRef.current || editorInstance.current) return;
 
-    // Add placeholder styles
-    const style = document.createElement('style');
-    style.textContent = `
-      [data-placeholder]:empty:before {
-        content: attr(data-placeholder);
-        color: #aaa;
-        pointer-events: none;
+    const options = {
+      element: editorRef.current,
+      placeholder,
+      features,
+      initialContent: value,
+      onChange: (html: string) => {
+        onChange?.(html);
+        updateActiveFeatures();
       }
-    `;
-    document.head.appendChild(style);
-
-    // Initialize editor
-    const options: EditorOptions = {
-      element: containerRef.current,
-      onChange: (html) => onChange?.(html)
     };
 
-    editorRef.current = new BaseEditor(options);
-
-    // Set initial content
-    if (value) {
-      editorRef.current.setContent(value);
-    }
+    editorInstance.current = new MicropenEditor(options);
+    // Initial state update
+    setTimeout(updateActiveFeatures, 0);
 
     return () => {
-      // Cleanup
-      editorRef.current = null;
-      style.remove();
+      editorInstance.current = null;
     };
   }, []);
 
-  // Update content when value prop changes
   useEffect(() => {
-    if (editorRef.current && value !== undefined) {
-      editorRef.current.setContent(value);
+    if (editorInstance.current && value !== editorInstance.current.getContent()) {
+      editorInstance.current.setContent(value);
+      updateActiveFeatures();
     }
   }, [value]);
 
-  // Expose methods via ref
-  useImperativeHandle(ref, () => ({
-    getContent: () => editorRef.current?.getContent() || '',
-    setContent: (html: string) => editorRef.current?.setContent(html),
-    focus: () => containerRef.current?.focus()
-  }));
-
   return (
-    <div
-      ref={containerRef}
-      className={className}
-      style={{ ...defaultStyles, ...style }}
-      contentEditable
-      data-placeholder={placeholder}
-      suppressContentEditableWarning
-    />
+    <div className="micropen-container">
+      <Toolbar
+        features={features}
+        activeFeatures={activeFeatures}
+        onFeatureClick={handleFeatureClick}
+      />
+      <div
+        ref={editorRef}
+        className="micropen-editor"
+        data-placeholder={placeholder}
+        onKeyDown={updateActiveFeatures}
+        onMouseUp={updateActiveFeatures}
+        onBlur={updateActiveFeatures}
+        onFocus={updateActiveFeatures}
+      />
+    </div>
   );
 });
+
+Editor.displayName = 'Editor';

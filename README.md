@@ -8,68 +8,113 @@ A feather-light (< 1KB) rich text editor with SSR compatibility and dynamic feat
 
 ## Features
 
-- 🪶 **Ultra Lightweight**: Less than 1KB in size
-- 🚀 **SSR Compatible**: Works seamlessly in server-side rendered applications
-- ⚡ **Dynamic Features**: Load editing features on-demand
-- 🧩 **Framework Agnostic**: Use with React, Vue, Angular, or vanilla JavaScript
-- 📱 **Mobile Ready**: Touch-friendly and responsive
-- 🔧 **Customizable**: Enable only the features you need
+- **Ultra Lightweight**: Less than 1KB in size
+- **SSR Compatible**: Works seamlessly in server-side rendered applications
+- **Dynamic Features**: Load editing features on-demand
+- **Framework Agnostic**: Use with React, Vue, or vanilla JavaScript
+- **Mobile Ready**: Touch-friendly and responsive
+- **Customizable**: Enable only the features you need
 
 ## Installation
 
 ```bash
+# npm
 npm install micropen
-# or
+
+# yarn
 yarn add micropen
-# or
+
+# pnpm
 pnpm add micropen
 ```
 
 ## Quick Start
 
-### Vanilla JavaScript
-
+### Vanilla JavaScript (ESM)
 ```javascript
 import { Editor } from 'micropen';
+import 'micropen/style.css';
 
 const editor = new Editor({
   element: document.getElementById('editor'),
+  placeholder: 'Start typing...',
   onChange: (html) => console.log('Content changed:', html)
 });
 ```
 
 ### React
-
 ```jsx
 import { Editor } from 'micropen/react';
+import 'micropen/style.css';
 
 function MyEditor() {
-  const handleChange = (content) => {
-    console.log('Content changed:', content);
-  };
+  const [content, setContent] = useState('');
 
-  return <Editor onChange={handleChange} />;
+  return (
+    <Editor
+      value={content}
+      onChange={setContent}
+      placeholder="Start typing..."
+      features={['bold', 'italic', 'link']}
+    />
+  );
 }
 ```
 
-### Vue
-
+### Vue 3
 ```vue
 <template>
-  <Editor @change="handleChange" />
+  <Editor
+    v-model="content"
+    :features="['bold', 'italic', 'link']"
+    placeholder="Start typing..."
+    @change="handleChange"
+  />
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
 import { Editor } from 'micropen/vue';
 
-export default {
-  components: { Editor },
-  methods: {
-    handleChange(content) {
-      console.log('Content changed:', content);
-    }
-  }
+const content = ref('');
+const handleChange = (html) => {
+  console.log('Content changed:', html);
 };
+</script>
+```
+
+### Next.js (App Router)
+```tsx
+'use client';
+
+import { Editor } from 'micropen/react';
+import 'micropen/style.css';
+
+export default function EditorPage() {
+  return (
+    <Editor
+      placeholder="Start typing..."
+      features={['bold', 'italic', 'link']}
+    />
+  );
+}
+```
+
+### Nuxt 3
+```vue
+<template>
+  <ClientOnly>
+    <Editor
+      v-model="content"
+      placeholder="Start typing..."
+      :features="['bold', 'italic', 'link']"
+    />
+  </ClientOnly>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+const content = ref('');
 </script>
 ```
 
@@ -79,32 +124,15 @@ export default {
 
 ```typescript
 interface EditorOptions {
-  element?: HTMLElement;        // Target element (required for vanilla JS)
-  placeholder?: string;         // Placeholder text
-  onChange?: (html: string) => void;  // Change callback
-  features?: string[];         // Features to enable
+  element: HTMLElement;              // Target element (required for vanilla JS)
+  placeholder?: string;             // Placeholder text
+  onChange?: (html: string) => void; // Change callback
+  features?: string[];              // Features to enable
+  initialContent?: string;          // Initial HTML content
 }
 ```
 
-### Methods
-
-```typescript
-editor.getContent(): string    // Get current HTML content
-editor.setContent(html: string) // Set HTML content
-editor.focus()                 // Focus the editor
-```
-
-## Dynamic Features
-
-micropen loads features dynamically to maintain its tiny footprint. Enable only what you need:
-
-```javascript
-const editor = new Editor({
-  features: ['bold', 'italic', 'link']  // Enable specific features
-});
-```
-
-Available features:
+### Available Features
 - `bold`: Bold text formatting
 - `italic`: Italic text formatting
 - `underline`: Underline text
@@ -113,21 +141,36 @@ Available features:
 - `heading`: Heading styles
 - `code`: Code formatting
 
+### React Props
+```typescript
+interface EditorProps {
+  value?: string;                   // Controlled content value
+  defaultValue?: string;            // Uncontrolled initial content
+  placeholder?: string;             // Placeholder text
+  onChange?: (html: string) => void; // Change callback
+  features?: string[];              // Features to enable
+  className?: string;               // Additional CSS class
+  style?: React.CSSProperties;      // Inline styles
+}
+```
+
+### Vue Props
+```typescript
+interface EditorProps {
+  modelValue?: string;              // v-model content
+  placeholder?: string;             // Placeholder text
+  features?: string[];              // Features to enable
+  class?: string | object;          // Additional CSS class
+  style?: object;                   // Inline styles
+}
+```
+
 ## Browser Support
 
 - Chrome (latest)
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
-- IE 11 (basic support)
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## License
-
-MIT 
 
 ## Size Comparison
 
@@ -145,6 +188,14 @@ MIT
 - **Dynamic Loading**: Pay only for what you use with feature-level code splitting
 - **Framework Agnostic**: Use it anywhere, with any framework
 - **Modern Architecture**: Built with TypeScript, zero dependencies
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## License
+
+MIT 
 
 ## Support
 
