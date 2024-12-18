@@ -38,9 +38,6 @@ export class Editor {
     if (options.features) {
       options.features.forEach(feature => this.enable(feature));
     }
-
-    // Log initial bundle size
-    console.log(`Initial bundle size: ${this.getBundleSize()}B`);
   }
 
   async enable(feature: string): Promise<void> {
@@ -61,11 +58,7 @@ export class Editor {
       });
 
       // Log updated bundle size
-      console.log(`Bundle size after enabling ${feature}: ${this.getBundleSize()}B`);
-
-      console.log(`Feature ${feature} enabled successfully`);
     } catch (error) {
-      console.error(`Failed to enable feature: ${feature}`, error);
       throw error;
     }
   }
@@ -73,12 +66,10 @@ export class Editor {
   execute(feature: string): void {
     if (!isBrowser()) return;
 
-    console.log(`Executing feature: ${feature}`);
     const featureInstance = this.#features.get(feature);
 
     if (!featureInstance) {
-      console.error(`Feature ${feature} not found`);
-      return;
+      throw new Error(`Feature ${feature} not found`);
     }
 
     try {
@@ -87,10 +78,7 @@ export class Editor {
 
       // Notify change
       this.#handleInput();
-
-      console.log(`Feature ${feature} executed successfully`);
     } catch (error) {
-      console.error(`Error executing feature ${feature}:`, error);
       throw error;
     }
   }
@@ -112,10 +100,8 @@ export class Editor {
         payload: feature,
         timestamp: Date.now()
       });
-
-      console.log(`Feature ${feature} disabled successfully`);
     } catch (error) {
-      console.error(`Error disabling feature ${feature}:`, error);
+      throw error;
     }
   }
 

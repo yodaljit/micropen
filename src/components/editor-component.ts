@@ -195,7 +195,7 @@ export class LightweightEditor extends HTMLElement {
       }
       this.editor.execute(feature);
     } catch (error) {
-      console.error(`Error executing feature ${feature}:`, error);
+      throw new Error(`Error executing feature ${feature}`);
     }
   }
 

@@ -38,10 +38,8 @@ export class FeatureGenerator {
       // Create a proper closure for the feature
       const feature = new Function('browserAPIs', `return ${optimizedCode}`)(browserAPIs) as GeneratedFeature;
       
-      console.log(`Generated feature ${name} (size: ${featureSize}B)`);
       return feature;
     } catch (error) {
-      console.error('Failed to generate feature code:', optimizedCode);
       throw error;
     }
   }

@@ -20,8 +20,7 @@ export const browserAPIs = {
     try {
       return document.execCommand(command, showUI, value);
     } catch (e) {
-      console.error(`Error executing command: ${command}`, e);
-      return false;
+      throw new Error(`Error executing command: ${command}`);
     }
   },
 
@@ -30,8 +29,7 @@ export const browserAPIs = {
     try {
       return document.queryCommandState(command);
     } catch (e) {
-      console.error(`Error querying command state: ${command}`, e);
-      return false;
+      throw new Error(`Error querying command state: ${command}`);
     }
   },
 

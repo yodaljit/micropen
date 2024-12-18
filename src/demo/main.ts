@@ -3,8 +3,7 @@ import { Editor } from '../editor';
 // Initialize editor
 const editor = new Editor({
     element: document.getElementById('editor')!,
-    onChange: (html) => {
-        console.log('Content changed:', html);
+    onChange: () => {
         updateButtonStates();
     }
 });
@@ -65,7 +64,6 @@ const executeFeature = async (feature: string) => {
         // Enable feature if not already enabled
         if (!editor.hasFeature(feature)) {
             await editor.enable(feature);
-            console.log(`Feature enabled: ${feature}`);
         }
 
         // Execute the feature

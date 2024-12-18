@@ -1,6 +1,6 @@
 {
   "name": "micropen",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A feather-light (< 1KB) SSR-compatible rich text editor with dynamic features",
   "main": "dist/editor.js",
   "module": "dist/editor.esm.js",
