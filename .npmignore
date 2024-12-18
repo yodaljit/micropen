@@ -1,0 +1,56 @@
+# Development files
+.git/
+.github/
+.vscode/
+.idea/
+.DS_Store
+*.log
+.editorconfig
+.eslintignore
+.eslintrc*
+.prettierrc*
+.gitignore
+.windsurfrules
+
+# Source and test files
+src/
+tests/
+examples/
+coverage/
+docs/
+scripts/
+
+# Build configuration
+tsconfig.json
+vite.config.ts
+vitest.config.ts
+rollup.config.js
+babel.config.js
+jest.config.js
+webpack.config.js
+
+# Development dependencies
+node_modules/
+
+# Build artifacts
+dist/tests/
+dist/**/*.map
+*.tsbuildinfo
+.nyc_output/
+.cache/
+temp/
+
+# Documentation
+CONTRIBUTING.md
+CHANGELOG.md
+*.md
+!README.md
+!LICENSE.md
+
+# Misc
+.env*
+.npmrc
+.yarnrc
+.pnpm-lock.yaml
+yarn.lock
+package-lock.json

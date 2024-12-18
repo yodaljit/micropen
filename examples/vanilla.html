@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightweight Editor - Vanilla HTML Example</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="../dist/components/index.js"></script>
+</head>
+<body>
+    <h1>Lightweight Editor - Vanilla HTML Example</h1>
+    
+    <lightweight-editor 
+        value="Start typing here..." 
+        placeholder="Enter your content"
+    ></lightweight-editor>
+
+    <script>
+        // Get editor instance
+        const editor = document.querySelector('lightweight-editor');
+
+        // Listen for changes
+        editor.addEventListener('change', (e) => {
+            console.log('Content changed:', e.detail.value);
+        });
+    </script>
+</body>
+</html>

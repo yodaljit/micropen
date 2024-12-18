@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightweight Editor Demo</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            line-height: 1.5;
+        }
+        
+        #toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        #toolbar > div {
+            display: flex;
+            gap: 0.5rem;
+            padding-right: 0.5rem;
+            border-right: 1px solid #eee;
+        }
+
+        #toolbar > div:last-child {
+            border-right: none;
+        }
+        
+        button {
+            padding: 0.5rem;
+            min-width: 2.5rem;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background: #f5f5f5;
+        }
+
+        button.active {
+            background: #e0e0e0;
+            border-color: #ccc;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        #editor {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            min-height: 200px;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        #editor:focus {
+            border-color: #aaa;
+        }
+        
+        #size-display {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: #333;
+            color: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Styles for formatted content */
+        #editor strong { font-weight: bold; }
+        #editor em { font-style: italic; }
+        #editor u { text-decoration: underline; }
+        #editor a { color: #0066cc; text-decoration: underline; }
+        #editor h2 { font-size: 1.5em; margin: 1em 0; }
+        #editor ul { margin: 1em 0; padding-left: 2em; }
+        #editor li { list-style: disc; }
+        #editor img { max-width: 100%; height: auto; }
+        #editor pre {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            white-space: pre-wrap;
+            margin: 1em 0;
+        }
+        #editor blockquote {
+            border-left: 4px solid #ddd;
+            margin: 1em 0;
+            padding-left: 1rem;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lightweight Editor Demo</h1>
+    
+    <div id="toolbar">
+        <!-- Text formatting -->
+        <div>
+            <button id="bold" title="Bold (Ctrl+B)">
+                <i class="fas fa-bold"></i>
+            </button>
+            <button id="italic" title="Italic (Ctrl+I)">
+                <i class="fas fa-italic"></i>
+            </button>
+            <button id="underline" title="Underline (Ctrl+U)">
+                <i class="fas fa-underline"></i>
+            </button>
+            <button id="color" title="Text Color">
+                <i class="fas fa-palette"></i>
+            </button>
+        </div>
+        
+        <!-- Links and media -->
+        <div>
+            <button id="link" title="Link (Ctrl+K)">
+                <i class="fas fa-link"></i>
+            </button>
+            <button id="image" title="Insert Image">
+                <i class="fas fa-image"></i>
+            </button>
+        </div>
+        
+        <!-- Block formatting -->
+        <div>
+            <button id="heading" title="Heading">
+                <i class="fas fa-heading"></i>
+            </button>
+            <button id="list" title="List">
+                <i class="fas fa-list-ul"></i>
+            </button>
+            <button id="code" title="Code Block">
+                <i class="fas fa-code"></i>
+            </button>
+            <button id="blockquote" title="Blockquote">
+                <i class="fas fa-quote-right"></i>
+            </button>
+        </div>
+
+        <!-- Alignment -->
+        <div>
+            <button id="align-left" title="Align Left">
+                <i class="fas fa-align-left"></i>
+            </button>
+            <button id="align-center" title="Align Center">
+                <i class="fas fa-align-center"></i>
+            </button>
+            <button id="align-right" title="Align Right">
+                <i class="fas fa-align-right"></i>
+            </button>
+        </div>
+        
+        <!-- History -->
+        <div>
+            <button id="undo" title="Undo (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button id="redo" title="Redo (Ctrl+Shift+Z)">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="editor" contenteditable="true">
+        <p>Try editing this text. Select some text and use the toolbar buttons to format it.</p>
+        
+        <p>Keyboard shortcuts:</p>
+        <ul>
+            <li><strong>Bold:</strong> Ctrl/Cmd + B</li>
+            <li><strong>Italic:</strong> Ctrl/Cmd + I</li>
+            <li><strong>Underline:</strong> Ctrl/Cmd + U</li>
+            <li><strong>Link:</strong> Ctrl/Cmd + K</li>
+            <li><strong>Undo:</strong> Ctrl/Cmd + Z</li>
+            <li><strong>Redo:</strong> Ctrl/Cmd + Shift + Z</li>
+        </ul>
+    </div>
+    
+    <div id="size-display"></div>
+    
+    <script type="module" src="src/demo/main.ts"></script>
+</body>
+</html>
